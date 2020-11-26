@@ -6,6 +6,27 @@ slide
 ## 도커 엔진(Docker Engine) 설치
 * [도커 설치 페이지](https://docs.docker.com/engine/install/)
 * [리눅스(ubuntu) 도커 설치](https://docs.docker.com/engine/install/ubuntu/)
+```shell script
+$ sudo apt-get remove docker docker-engine docker.io containerd runc
+$ sudo apt-get update
+$ sudo apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg-agent \
+    software-properties-common
+$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+$ sudo apt-key fingerprint 0EBFCD88
+$ sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+$ sudo apt-get update
+$ sudo apt-get install docker-ce docker-ce-cli containerd.io
+$ sudo docker -v
+Docker version 19.03.13, build 4484c46d9d
+
+``` 
 * [맥 도커 설치](https://docs.docker.com/docker-for-mac/install/)
 * [윈도우 도커 설치](https://docs.docker.com/docker-for-windows/install/)  
 
@@ -30,11 +51,6 @@ slide
 ## 도커 컨테이너 실습
 실습에서는 docker CLI(Command Line Interface)으로 진행합니다.
 
-도커 컨테이너에 관련된 CLI 는 아래의 형태입니다.  
-```shell script
-$ docker container run [OPTIONS] IMAGE [COMMAND] [ARG...] 
-```
-
 도커는 root 권한을 요구하기 때문에 `docker` 명령어는 `sudo` 명령어를 붙어야 실행할 수 있습니다.
 
 도커 명령어를 편리하게 실행하기 위해 group을 설정합니다. 
@@ -42,10 +58,16 @@ $ docker container run [OPTIONS] IMAGE [COMMAND] [ARG...]
 ```shell script
 $ sudo groupadd docker
 $ sudo usermod -aG docker $USER 
+ 
 ```
 로그아웃 후 다시 로그인 합니다.
 
 ### 도커 컨테이너 생성(실행)
+도커 컨테이너에 관련된 CLI 는 아래의 형태입니다.  
+```shell script
+$ docker container run [OPTIONS] IMAGE [COMMAND] [ARG...] 
+```
+
 #### 도커 "Hello, World"
 ```shell script
 $ docker container run hello-world
@@ -575,4 +597,3 @@ ace0eda3e3be: Waiting
 ```
 
 * Google Cloud Run 배포
-
