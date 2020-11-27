@@ -32,21 +32,19 @@ Docker version 19.03.13, build 4484c46d9d
 
 ## 도커 이미지와 컨테이너
 도커(엔진) 에서 사용하는 기본 단위는 이미지와 컨테이너 입니다. 사실상 이 둘이 도커의 핵심입니다.
-- 붕어빵과 틀
 - 1:N
 
 ### 도커 이미지 개념
 이미지는 컨테이너를 생성할 때 필요한 요소 입니다. 컨테이너를 생성하기 위한 템플릿 입니다. 저장소(repository) 통해 이미지를 저장하고 불러올 수 있습니다.
-- 붕어빵 틀
 - 저장소(Repository): 이미지가 저장된 장소를 의미
 - 도커 허브(Docker hub): 도커에서 공식으로 사용하는 저장소 이름
 
 ### 도커 컨테이너 개념
 앞에서 설명한 도커 이미지는 우분투, CentOS 등 리눅스 운영체제부터 DB, 언어별 개발환경, 머신러닝 개발 환경 등까지 다양한 종류가 있습니다.
-이러한 이미지로 컨테이너를 생성하면 해당 이미지의 모적에 맞는 파일이 들어 있는 파일 시스템과 격리된 시스템 자원 및 네트워크를 사용할 수 있는 독립된 공간이 생성되고, 이것이 바로 도커 컨테이너 입니다.
+이러한 이미지로 컨테이너를 생성하면 해당 이미지의 목적에 맞는 파일이 들어 있는 파일 시스템과 격리된 시스템 자원 및 네트워크를 사용할 수 있는 독립된 공간이 생성되고, 이것이 바로 도커 컨테이너 입니다.
 컨테이너는 이미지를 읽기 전용으로 사용하게되고 컨테이너 내부의 변경 사항은 이미지에 영향을 주지 않습니다.
 또한 생성된 각 컨테이너는 각기 독립된 파일시스템을 제공 받으며 호스트와 분리돼 있으므로 특정 컨테이너에서 어떤 애플리케이션을 설치하거나 삭제해도 다른 컨테이너와 호스트는 변화가 없습니다.  
-- 붕어빵
+
 
 ## 도커 컨테이너 실습
 실습에서는 docker CLI(Command Line Interface)으로 진행합니다.
@@ -62,12 +60,54 @@ $ sudo usermod -aG docker $USER
 ```
 로그아웃 후 다시 로그인 합니다.
 
-### 도커 컨테이너 생성(실행)
+### 도커 컨테이너 명령어
 도커 컨테이너에 관련된 CLI 는 아래의 형태입니다.  
 ```shell script
-$ docker container run [OPTIONS] IMAGE [COMMAND] [ARG...] 
-```
+$ docker container --help
 
+Usage:  docker container COMMAND
+
+Manage containers
+
+Commands:
+  attach      Attach local standard input, output, and error streams to a running container
+  commit      Create a new image from a container's changes
+  cp          Copy files/folders between a container and the local filesystem
+  create      Create a new container
+  diff        Inspect changes to files or directories on a container's filesystem
+  exec        Run a command in a running container
+  export      Export a container's filesystem as a tar archive
+  inspect     Display detailed information on one or more containers
+  kill        Kill one or more running containers
+  logs        Fetch the logs of a container
+  ls          List containers
+  pause       Pause all processes within one or more containers
+  port        List port mappings or a specific mapping for the container
+  prune       Remove all stopped containers
+  rename      Rename a container
+  restart     Restart one or more containers
+  rm          Remove one or more containers
+  run         Run a command in a new container
+  start       Start one or more stopped containers
+  stats       Display a live stream of container(s) resource usage statistics
+  stop        Stop one or more running containers
+  top         Display the running processes of a container
+  unpause     Unpause all processes within one or more containers
+  update      Update configuration of one or more containers
+  wait        Block until one or more containers stop, then print their exit codes
+
+Run 'docker container COMMAND --help' for more information on a command. 
+```
+### 도커 컨테이너 자주 쓰는 명령어
+* run: 컨테이너를 생성하고 실행하는 명령어
+* ls: 컨테이너 목록 조회 (docker ps)
+* exec: 생성된 컨테이너에 명령어를 실행해서 접속
+* stop: 실행중인 컨테이너 중지
+* rm: 컨테이너 삭제
+* prune: 중지된 모든 컨테이너 삭
+* attach: 실행 중인 컨테이너에 standard input, output, error 에 붙음
+
+### 도커 컨테이너 생성
 #### 도커 "Hello, World"
 ```shell script
 $ docker container run hello-world
@@ -95,22 +135,8 @@ For more examples and ideas, visit:
  https://docs.docker.com/get-started/
 ```
 
-#### 여러 버전의 ubuntu 리눅스 컨테이너 생성
+#### ubuntu 리눅스 컨테이너 생성
 * 최신 버전 ubuntu 리눅스 컨테이너 생성
-
-우선 최신 버전 ubuntu 리눅스 컨테이너를 생성해 봅니다.
-
-```shell script
-$ docker container run ubuntu
-Unable to find image 'ubuntu:latest' locally
-latest: Pulling from library/ubuntu
-6a5697faee43: Pull complete 
-ba13d3bc422b: Pull complete 
-a254829d9e55: Pull complete 
-Digest: sha256:fff16eea1a8ae92867721d90c59a75652ea66d29c05294e6e2f898704bdb8cf1
-Status: Downloaded newer image for ubuntu:latest
-```
-이미지를 잘 다운로드하였고, 무언가 실행될 것 같지만 아무런 결과가 보이지 않습니다.
 
 ```shell script
 $ docker container run -it ubuntu bash
@@ -147,14 +173,25 @@ $ docker cotainer ps
 CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS               NAMES
 a3f3ec397f3a        nginx               "/docker-entrypoint.…"   4 seconds ago       Up 3 seconds        80/tcp              clever_bose
 ```
- 
 
 #### 컨테이너 종료
 * exit (Ctrl + D)
 * 임시 빠저나오기 (Ctrl + P,Q)
 
 #### 컨테이너 접속
-도커 컨테이너에 접속하는 명령어는 `attach` 와 `exec` 가 있습니다.
+도커 컨테이너에 접속하는 명령어는 `exec`와 `attach`가 있습니다.
+
+* exec
+`exec`는 실행 중인 컨테이너에서 명령어를 실행시킬 때 사용합니다.
+```shell script
+$ docker container run -d -it nginx 
+docker container ps
+CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS          PORTS     NAMES
+2d43818c64be   nginx     "/docker-entrypoint.…"   19 seconds ago   Up 18 seconds   80/tcp    mystifying_kapitsa               
+
+$ docker container exec -it 2d43818c64be /bin/bash
+root@882913fbf440:/# 
+```
 
 * attach
 
@@ -163,34 +200,12 @@ a3f3ec397f3a        nginx               "/docker-entrypoint.…"   4 seconds ago
 $ docker container run -it ubuntu:18.04 bash
 root@44565bc0191f:/# (Ctrl + P,Q)
 
-$ sudo docker container ps
+$ docker container ps
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
 44565bc0191f        ubuntu:18.04        "bash"              49 seconds ago      Up 48 seconds                           exciting_gould
 
-$ sudo docker container attach 44565bc0191f
+$ docker container attach 44565bc0191f
 root@44565bc0191f:/#  
-```
-
-* exec
-
-`exec`는 실행 중인 컨테이너에서 명령어를 실행시킬 때 사용합니다.
-```shell script
-$ docker container run -it ubuntu:18.04 top
-top - 18:20:50 up  1:20,  0 users,  load average: 0.12, 0.03, 0.01
-Tasks:   1 total,   1 running,   0 sleeping,   0 stopped,   0 zombie
-%Cpu(s):  0.0 us,  0.3 sy,  0.0 ni, 99.7 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
-KiB Mem :  7636432 total,  5774936 free,   316604 used,  1544892 buff/cache
-KiB Swap:        0 total,        0 free,        0 used.  7075768 avail Mem 
-  PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND                                                                                                                                                          
-    1 root      20   0   36736   3172   2748 R   0.0  0.0   0:00.03 top               
-
-(Ctrl + P,Q)
-$ docker container ps
-CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
-882913fbf440        ubuntu:18.04        "top"               53 seconds ago      Up 52 seconds                           zen_joliot
-
-$ docker container exec -it 882913fbf440 /bin/bash
-root@882913fbf440:/# 
 ```
 
 ### 컨테이너 목록 확인
@@ -210,7 +225,7 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 ...
 ```
 
-#### docker container ps 출력 설명
+#### docker container ls (docker ps) 출력 설명
 * CONTAINER ID: 컨테이너에 자동으로 할당되는 고유 ID 
 * IMAGE: 컨테이너를 생성할 때 사용된 이미지 이름
 * COMMAND: 컨테이너가 시작될 때 실행될 명령어
@@ -344,20 +359,43 @@ Commercial support is available at
 ## 도커 이미지 실습
 ### [도커 허브(Docker Hub)](https://hub.docker.com/)
 도커 허브는 도커에서 제공하는 기본 이미지 저장소 입니다. 앞서 컨테이너 실습에서 이미지를 다운로드 받은 저장소 역시 도커 허브 입니다.
-### 도커 이미지 검색
+
+### 도커 이미지 명령어
+도커 이미지에 관련된 CLI 는 아래의 형태입니다.  
 ```shell script
-$ docker search ubuntu
-docker search ubuntu
-NAME                                                      DESCRIPTION                                     STARS               OFFICIAL            AUTOMATED
-ubuntu                                                    Ubuntu is a Debian-based Linux operating sys…   11552               [OK]                
-dorowu/ubuntu-desktop-lxde-vnc                            Docker image to provide HTML5 VNC interface …   476                                     [OK]
-rastasheep/ubuntu-sshd                                    Dockerized SSH service, built on top of offi…   250                                     [OK]
-consol/ubuntu-xfce-vnc                                    Ubuntu container with "headless" VNC session…   228                                     [OK]
+$ docker image --help
+Usage:  docker image COMMAND
+Manage images
+Commands:
+  build       Build an image from a Dockerfile
+  history     Show the history of an image
+  import      Import the contents from a tarball to create a filesystem image
+  inspect     Display detailed information on one or more images
+  load        Load an image from a tar archive or STDIN
+  ls          List images
+  prune       Remove unused images
+  pull        Pull an image or a repository from a registry
+  push        Push an image or a repository to a registry
+  rm          Remove one or more images
+  save        Save one or more images to a tar archive (streamed to STDOUT by default)
+  tag         Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE
+Run 'docker image COMMAND --help' for more information on a command.
 ```
+
+### 도커 이미지 자주 쓰는 명령어
+* build: Dockerfile을 사용하여 이미지를 빌드
+* ls: 도커 이미지 목록 (docker images)
+* tag: 이미지에 태그
+* rm: 도커 이미지 삭제 (docker rmi)
+* pull: 도커 이미지 pull(다운로드)
+* push: 도커 이미지 push
+* prune: 사용하지 않는 이미지 삭제
+* history: 이미지에 history 정보 출력
+* inspect: 이미지의 세부 정보 출력
 
 ### 도커 이미지 다운로드
 ```shell script
-$ sudo docker image pull debian
+$ docker image pull debian
 Using default tag: latest
 latest: Pulling from library/debian
 756975cb9c7e: Pull complete 
@@ -365,9 +403,16 @@ Digest: sha256:e2cc6fb403be437ef8af68bdc3a89fd58e80b4e390c58f14c77c466002391193
 Status: Downloaded newer image for debian:latest
 docker.io/library/debian:latest
 ```
-### 도커 이미지 목록 확인
+### 도커 이미지 목록
 ```shell script
-$ sudo docker images
+$ docker image ls
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+debian              latest              ef05c61d5112        7 days ago          114MB
+ubuntu              latest              d70eaf7277ea        4 weeks ago         72.9MB
+ubuntu              18.04               56def654ec22        2 months ago        63.2MB
+...
+
+$ docker images
 REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
 debian              latest              ef05c61d5112        7 days ago          114MB
 ubuntu              latest              d70eaf7277ea        4 weeks ago         72.9MB
@@ -376,15 +421,17 @@ ubuntu              18.04               56def654ec22        2 months ago        
 ```
 
 ### 도커 이미지 생성(commit)
-기존 base 이미지를 변경하여 나만의 새로운 이미지를 생성해 보겠습니다.
+기존 base 이미지를 변경하여 나만의 새로운 이미지를 생성해 보겠습니다. commit 명령어는 컨테이너를 바탕으로 이미지를 생성하는 명령어 입니다.
+
 `commit` 명령어는 사용법은 아래 형태 입니다.
 ```shell script
+$ docker commit --help
 docker commit [OPTIONS] CONTAINER [REPOSITORY[:TAG]]
 ```
 
 우선 ubuntu 이미지를 가지고 컨테이너 하나를 생성합니다. 생성한 컨테이너 안에서 my_file 이라는 파일을 하나 생성하고 컨테이너를 종료합니다.
 ```shell script
-$ docker run -it --name commit_image ubuntu:18.04
+$ docker run -it --name my_image ubuntu:18.04
 root@8136a507efcf:/# touch my_file
 root@8136a507efcf:/# ls
 bin  boot  dev  etc  home  lib  lib64  media  mnt  my_file  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
@@ -394,11 +441,11 @@ root@8136a507efcf:/# exit
 위에서 변경된 컨테이너를 통해 새로운 이미지를 생성합니다. 
 
 ```shell script
-docker commit -a seunghokim -m "add my_file" commit_image commit_image:first
+$ docker commit -a seunghokim -m "add my_file" my_image my_image:first
 sha256:a18a941c4b77f92299c4f351ef74991dcaaf90d48d304900599aadd72b5ec56d
 $ docker images
 REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
-commit_image        first               a18a941c4b77        7 seconds ago       63.2MB
+my_image            first               a18a941c4b77        7 seconds ago       63.2MB
 ...
 ubuntu              18.04               56def654ec22        2 months ago        63.2MB
 ...
@@ -407,7 +454,7 @@ ubuntu              18.04               56def654ec22        2 months ago        
 
 새로 변경된 이미지로 컨테이너를 생성해 봅니다. 처음부터 `my_file` 이라는 파일이 생성되 있습니다.
 ```shell script
-$ docker container run -it commit_image:first 
+$ docker container run -it my_image:first 
 root@021baf4ba4c0:/# ls     
 bin  boot  dev  etc  home  lib  lib64  media  mnt  my_file  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
 ```
@@ -417,12 +464,12 @@ git에 소스코드를 commit 후 GitHub에 `push`, `pull` 하는 것과 비슷�
 
 도커에서 공식적으로 제공하는 도커 허브에 push 하여 새로운 이미지를 배포해 봅니다.
 
-#### 도커 허브 가입, 로그인
+### 도커 허브 가입, 로그인
 가입 링크: https://hub.docker.com/signup
 
 도커 허브에 가입을 했으면 로그인을 합니다. 로그인 하지 않으면 도커 허브 저장소에 이미지를 push할 권한이 없습니다.
 ```shell script
-$ $ docker login
+$ docker login
 Login with your Docker ID to push and pull images from Docker Hub. If you don't have a Docker ID, head over to https://hub.docker.com to create one.
 Username: YOUR_USERNAME
 Password: YOUR_PASSWORD
@@ -433,34 +480,34 @@ Login Succeeded
 
 ```
 
-#### 이미지 태그(tag)
-새로 생성한 `commit_image` 이미지에 태그를 붙여봅니다. 
+### 도커 이미지 태그(tag)
+새로 생성한 `my_image` 이미지에 태그를 붙여봅니다. 
 
 내 아이디와 저장소 이름으로 태그된 이미지 파일만 도커 허브에 이미지를 push 할 수 있습니다.
 ```shell script
-$ docker image tag f607173ae878 seunghokim/commit_image:first
+$ docker image tag f607173ae878 seunghokim/my_image:first
 shkim_kaeri_202011@docker-hands-on:~$ docker images
 REPOSITORY                TAG                 IMAGE ID            CREATED             SIZE
-commit_image              first               f607173ae878        22 minutes ago      63.2MB
-seunghokim/commit_image   first               f607173ae878        22 minutes ago      63.2MB
+my_image                  first               f607173ae878        22 minutes ago      63.2MB
+seunghokim/my_image       first               f607173ae878        22 minutes ago      63.2MB
 ``` 
 
-#### 이미지 push, pull
+### 도커 이미지 push, pull
 태그한 이미지를 도커 허브에 push, pull 해봅니다.
 ```shell script
-$ docker image push seunghokim/commit_image:first
-The push refers to repository [docker.io/seunghokim/commit_image]
+$ docker image push seunghokim/my_image:first
+The push refers to repository [docker.io/seunghokim/my_image]
 de4e96d699e0: Pushed 
 7a694df0ad6c: Mounted from library/ubuntu 
 3fd9df553184: Mounted from library/ubuntu 
 805802706667: Mounted from library/ubuntu 
 first: digest: sha256:e6d788ad39a41fa3dee59cfd977be319136a34334a78663c81ebf1c4dabe63b9 size: 1150
 
-$ docker pull seunghokim/commit_image:first
-first: Pulling from seunghokim/commit_image
+$ docker pull seunghokim/my_image:first
+first: Pulling from seunghokim/my_image
 Digest: sha256:e6d788ad39a41fa3dee59cfd977be319136a34334a78663c81ebf1c4dabe63b9
-Status: Image is up to date for seunghokim/commit_image:first
-docker.io/seunghokim/commit_image:first
+Status: Image is up to date for seunghokim/my_image:first
+docker.io/seunghokim/my_image:first
 ```
 
 도커 허브 웹 사이트에 접속하여 push 한 이미지가 보이는지 확인합니다.
@@ -502,7 +549,7 @@ Successfully built 4369e22d43a2
 $ docker images
 REPOSITORY                TAG                 IMAGE ID            CREATED             SIZE
 seunghokim/build_image    first               4369e22d43a2        5 minutes ago       63.2MB
-commit_image              first               f607173ae878        49 minutes ago      63.2MB
+my_image                  first               f607173ae878        49 minutes ago      63.2MB
 
 $ docker run -it seunghokim/build_image:first
 root@fdcf6eeb8955:/# ls
@@ -514,14 +561,21 @@ root@fdcf6eeb8955:/#
 ### Dockerfile 명령어
 Dockerfile에는 컨테이너에서 수행해야 할 작업을 명시합니다.
 Dockerfile에는 도커 이미지를 빌드하기 위한 별도의 명령어가 있습니다. 
- 
+
+### Dockerfile 자주 쓰는 명령어 
 Dockerfile 명령어들은 소문자를 사용해도 동작하지만, 일반적으로 대문자를 사용합니다.
 * FROM: 생성할 이미지의 base 이미지 이름
 * RUN: 이미지를 만들기 위해 컨테이너 안에서 수행할 명령어
 * CMD: 컨테이너가 실제 실행될 때, 실행되는 명령어
+* ENTRYPOINT: 
 * EXPOSE: Dockerfile로 생성된 이미지에서 오픈할 포트 설정
 * WORKDIR: 명령어를 실행한 디렉터리
-* COPY: 이미지에 추가할 파일 정보  
+* COPY: 이미지에 파일 추가
+* ADD: 이미지에 리소스 추가 -> COPY 를 권장
+
+### Dockerfile 작성시 유의 사항
+* Dockerfile 명령어 순서가 중요합니다.
+* 가독성 좋게 코드를 작성합니다.
 
 ## 도커를 활용한 자바스크립트 테트리스 배포
 * [GitHub: uzyexe/javascript-tetris](https://github.com/uzyexe/javascript-tetris)
